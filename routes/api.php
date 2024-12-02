@@ -17,9 +17,7 @@ use App\Http\Controllers\ProductController;
 
 // Route::HTTPメソッド('URL',[コントローラー::class,'コントローラーのメソッド'])->name('ルート名');
 // HTTPメソッド→GET,POST,PUTまたはPATCH,DELETE
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+
 // 商品の一覧を習得する(get:ページを表示)
 Route::get('products', [ProductController::class, 'index']);
 // 新しい商品を作成する(post:データを保存)
