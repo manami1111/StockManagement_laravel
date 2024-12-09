@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-
 use Illuminate\Http\Request;
+use App\Exports\ProductsExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -69,15 +71,40 @@ class ProductController extends Controller
     {
         Product::destroy($id);
         return response()->json(null, 204);
+    }
+    // HTTPのDELETE（他にもGETやPOST等）などのメソッドは、サーバに対する要請の種類を表すもの
+    // Controllerに記述するdestroy等のメソッドは、オブジェクト指向における振る舞い（メンバ関数）の事
+    // delete()=複数削除 destroy()=単体削除
+    // Product::destroy($id) :Productモデルを使って指定したIDの商品をデータベースから削除する
+    // 削除できた→destroyメソッドは削除したレコード数を返す(1件削除なら1)
+    // 商品が見つからない→削除されたレコード数がないから0を返す
+    // null は 削除された商品の情報は返さないということ
+    // 204 は 削除が成功したが、返すべきデータはないということ
+    // null と 204 を合わせて使うことで、「削除が成功した」「返すべきデータはない」ということを明確に伝えることができる
 
+
+    // 商品のエクスポート(Excel)
+    public function export()
+    {
+        try {
+            // ログ出力: エクスポート開始
+            Log::info("Export started");
+    
+            // Excelファイルをダウンロード
+            return Excel::download(new ProductsExport, 'products.xlsx');
+        } catch (\Exception $e) {
+            // ログ出力: エクスポート失敗
+            Log::error("Export failed: " . $e->getMessage());
+    
+            // エラーをレスポンスとして返す
+            return response()->json(['error' => 'Export failed: ' . $e->getMessage()], 500);
+        }
+    }
+    
+
+    // 商品のエクスポート(CSV)
+    public function exportCsv()
+    {
+        return Excel::download(new ProductsExport, 'products.csv', \Maatwebsite\Excel\Excel::CSV);
     }
 }
-// HTTPのDELETE（他にもGETやPOST等）などのメソッドは、サーバに対する要請の種類を表すもの
-// Controllerに記述するdestroy等のメソッドは、オブジェクト指向における振る舞い（メンバ関数）の事
-// delete()=複数削除 destroy()=単体削除
-// Product::destroy($id) :Productモデルを使って指定したIDの商品をデータベースから削除する
-// 削除できた→destroyメソッドは削除したレコード数を返す(1件削除なら1)
-// 商品が見つからない→削除されたレコード数がないから0を返す
-// null は 削除された商品の情報は返さないということ
-// 204 は 削除が成功したが、返すべきデータはないということ
-// null と 204 を合わせて使うことで、「削除が成功した」「返すべきデータはない」ということを明確に伝えることができる

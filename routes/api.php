@@ -26,3 +26,7 @@ Route::post('products', [ProductController::class, 'store']);
 Route::put('products/{id}', [ProductController::class, 'update']);
 // 商品を削除する(delete:データの削除)
 Route::delete('products/{id}', [ProductController::class, 'destroy']);
+
+// データをエクスポートする
+Route::get('/products/export', [ProductController::class, 'export']);
+Route::get('/products/export-csv', [ProductController::class, 'exportCsv']);
