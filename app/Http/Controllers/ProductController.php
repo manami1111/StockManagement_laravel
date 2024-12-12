@@ -87,24 +87,48 @@ class ProductController extends Controller
     public function export()
     {
         try {
-            // ログ出力: エクスポート開始
             Log::info("Export started");
-    
+            // エクスポートが開始されたことをログに記録
+            // ログを見返してエクスポート処理が正常に始まったかを確認できる
+
             // Excelファイルをダウンロード
-            return Excel::download(new ProductsExport, 'products.xlsx');
-        } catch (\Exception $e) {
-            // ログ出力: エクスポート失敗
+            return
+                Excel::download(new ProductsExport, 'products.xlsx');
+                // Excel::download() は、Laravel Excelパッケージが提供するメソッド
+                // ProductsExport クラスのデータを products.xlsx という名前でダウンロードする
+        } catch (\Exception $e) { // エクスポート中にエラーが発生した場合
             Log::error("Export failed: " . $e->getMessage());
-    
-            // エラーをレスポンスとして返す
-            return response()->json(['error' => 'Export failed: ' . $e->getMessage()], 500);
+            // エクスポート処理が失敗した場合、そのエラーをエラーログに記録
+
+            return
+                response()->json(['error' => 'Export failed: ' . $e->getMessage()], 500);
+                // response()->json():Laravelのレスポンスヘルパーで、JSON形式のレスポンスを返すためのメソッド
+                // JSON形式とは、データを {}（波かっこ）で囲んだオブジェクトや、[]（角かっこ）で囲んだ配列の形式で表現するもの
+                
         }
     }
-    
+
 
     // 商品のエクスポート(CSV)
     public function exportCsv()
     {
-        return Excel::download(new ProductsExport, 'products.csv', \Maatwebsite\Excel\Excel::CSV);
+        try {
+            // CSVファイルをダウンロード
+            return response()->streamDownload(function () {
+                echo (new \App\Exports\ProductsExport())->collection()->map(function ($product) {
+                    return implode(",", $product->toArray());
+                })->implode("\n");
+            }, 'products.csv', [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="products.csv"',
+            ]);
+        } catch (\Exception $e) {
+            // エラーハンドリング
+            Log::error('CSV Export Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'CSVエクスポート中にエラーが発生しました。',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

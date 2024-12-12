@@ -15,5 +15,6 @@ class ProductsExport implements FromCollection
     public function collection()
     {
         return Product::all();  // 商品データを全て取得
+
     }
 }
