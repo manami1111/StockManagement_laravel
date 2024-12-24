@@ -94,40 +94,60 @@ class ProductController extends Controller
             // Excelファイルをダウンロード
             return
                 Excel::download(new ProductsExport, 'products.xlsx');
-                // Excel::download() は、Laravel Excelパッケージが提供するメソッド
-                // ProductsExport クラスのデータを products.xlsx という名前でダウンロードする
+            // Excel::download() は、Laravel Excelパッケージが提供するメソッド
+            // ProductsExport クラスのデータを products.xlsx という名前でダウンロードする
         } catch (\Exception $e) { // エクスポート中にエラーが発生した場合
             Log::error("Export failed: " . $e->getMessage());
             // エクスポート処理が失敗した場合、そのエラーをエラーログに記録
 
             return
                 response()->json(['error' => 'Export failed: ' . $e->getMessage()], 500);
-                // response()->json():Laravelのレスポンスヘルパーで、JSON形式のレスポンスを返すためのメソッド
-                // JSON形式とは、データを {}（波かっこ）で囲んだオブジェクトや、[]（角かっこ）で囲んだ配列の形式で表現するもの
-                
+            // response()->json():Laravelのレスポンスヘルパーで、JSON形式のレスポンスを返すためのメソッド
+            // JSON形式とは、データを {}（波かっこ）で囲んだオブジェクトや、[]（角かっこ）で囲んだ配列の形式で表現するもの
+
         }
     }
 
 
-    // 商品のエクスポート(CSV)
+    // // 商品のエクスポート(CSV)
+
     public function exportCsv()
     {
         try {
-            // CSVファイルをダウンロード
+            // エラーが起こったらキャッチに移る
             return response()->streamDownload(function () {
-                echo (new \App\Exports\ProductsExport())->collection()->map(function ($product) {
+                // response()->streamDownload : Laravelのヘルパーメソッドで、ストリーム形式でダウンロード
+                // ストリーム形式 : 大量のデータを一度にメモリに読み込むのではなく、少しずつ生成・送信する方法
+                // function () {...} : 無名関数。一時的に使う関数
+                $products = (new \App\Exports\ProductsExport())->collection();
+                // 「コレクション」とは、データを操作しやすい形にまとめた便利なデータの集まり
+                // コレクションは主に Illuminate\Support\Collection クラスを使って管理され、配列やデータベースの結果を扱いやすくするためのツール
+                // $productsに製品データをコレクションとして保存
+
+
+                // CSVデータを1行ずつ作成
+                $csvLines = $products->map(function ($product) {
+                    // 製品データをmapで１つずつ取り出す
                     return implode(",", $product->toArray());
-                })->implode("\n");
+                    // $product->toArray() : 製品データを単純な配列形式（['value1', 'value2', ...]）に変換
+                    // implode(",", ...) : 配列をカンマで区切った文字列に変換
+                });
+
+                echo $csvLines->implode("\n");
+                // implode("\n") :コレクション内の各要素を改行（\n）で区切って結合
             }, 'products.csv', [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="products.csv"',
+                // ファイルの種類と名前を設定
+                'Content-Type' => 'text/csv', //ファイルの種類
+                'Content-Disposition' => 'attachment; filename="products.csv"', //ダウンロードした時のファイル名
             ]);
         } catch (\Exception $e) {
-            // エラーハンドリング
-            Log::error('CSV Export Error: ' . $e->getMessage());
+            Log::error('CSVエクスポート中にエラー発生: ' . $e->getMessage());
+            // サーバーのログファイルにエラー内容を記録
+
+            // ユーザーにエラーメッセージを返す
             return response()->json([
                 'error' => 'CSVエクスポート中にエラーが発生しました。',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

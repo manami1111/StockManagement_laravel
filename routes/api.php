@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,3 +31,14 @@ Route::delete('products/{id}', [ProductController::class, 'destroy']);
 // データをエクスポートする
 Route::get('/products/export', [ProductController::class, 'export']);
 Route::get('/products/export-csv', [ProductController::class, 'exportCsv']);
+
+// ユーザ登録用
+Route::post('/register', [AuthController::class, 'register']);
+
+// ログイン用
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->get('/inventory', function () {
+    // 在庫一覧を返す処理
+    return response()->json(['message' => 'This is protected data']);
+});
