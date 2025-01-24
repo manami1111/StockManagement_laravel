@@ -52,6 +52,9 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $product = Product::find($id);
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
+        }
         $product->update($request->all());
         return response()->json($product);
     }
@@ -69,7 +72,14 @@ class ProductController extends Controller
     // 商品削除
     public function destroy($id)
     {
-        Product::destroy($id);
+        // Product::destroy($id);
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+
+        $product->delete();
         return response()->json(null, 204);
     }
     // HTTPのDELETE（他にもGETやPOST等）などのメソッドは、サーバに対する要請の種類を表すもの
@@ -150,5 +160,20 @@ class ProductController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    // 商品の詳細情報を取得する
+    public function show($id)
+    {
+        // 商品IDを元に商品情報を取得
+        $product = Product::find($id);
+        
+        // 商品が見つからなかった場合
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+
+        // 商品情報を返す
+        return response()->json($product);
     }
 }
