@@ -41,7 +41,7 @@ Route::get('/products/export-csv', [ProductController::class, 'exportCsv']);
 // // ログイン用
 // Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->get('/inventory', function () {
+Route::get('/inventory', function () {
     // 在庫一覧を返す処理
     return response()->json(['message' => 'This is protected data']);
 });

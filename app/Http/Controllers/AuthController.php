@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
-
 
 class AuthController extends Controller
 {
@@ -30,22 +28,5 @@ class AuthController extends Controller
         ]);
 
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);
-    }
-
-    public function login(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-
-        if (!auth()->attempt($credentials)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        $token = auth()->user()->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Logged in successfully',
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ]);
     }
 }
