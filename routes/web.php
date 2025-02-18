@@ -22,3 +22,12 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json(['message' => 'This is protected data']);
     });
 });
+
+
+Route::get('/{any}', function () {
+    return view('react.index');
+})->where('any', '.*');
+
+Route::get('/react', function () {
+    return view('react.index');
+});
