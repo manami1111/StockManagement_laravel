@@ -28,6 +28,6 @@ Route::get('/{any}', function () {
     return view('react.index');
 })->where('any', '.*');
 
-Route::get('/react', function () {
+Route::get('/', function () {
     return view('react.index');
 });
