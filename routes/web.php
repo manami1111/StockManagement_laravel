@@ -31,3 +31,7 @@ Route::get('/{any}', function () {
 Route::get('/', function () {
     return view('react.index');
 });
+
+Route::get('/react', function () {
+    return view('react.index');
+});
