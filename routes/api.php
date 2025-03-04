@@ -20,6 +20,10 @@ use App\Http\Controllers\AuthController;
 // Route::HTTPメソッド('URL',[コントローラー::class,'コントローラーのメソッド'])->name('ルート名');
 // HTTPメソッド→GET,POST,PUTまたはPATCH,DELETE
 
+// データをエクスポートする
+Route::get('/products/export', [ProductController::class, 'export']);
+Route::get('/products/export-csv', [ProductController::class, 'exportCsv']);
+
 // 商品の一覧を習得する(get:ページを表示)
 Route::get('products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
@@ -31,9 +35,7 @@ Route::put('products/{id}', [ProductController::class, 'update']);
 // 商品を削除する(delete:データの削除)
 Route::delete('products/{id}', [ProductController::class, 'destroy']);
 
-// データをエクスポートする
-Route::get('/products/export', [ProductController::class, 'export']);
-Route::get('/products/export-csv', [ProductController::class, 'exportCsv']);
+
 
 // // ユーザ登録用
 // Route::post('/register', [AuthController::class, 'register']);
